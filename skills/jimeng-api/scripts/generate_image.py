@@ -30,7 +30,7 @@ def generate_text_to_image(
     intelligent_ratio: bool = False,
     negative_prompt: str = None,
     sample_strength: float = None,
-    api_url: str = "http://100.80.150.48:7918",
+    api_url: str = "http://localhost:5100",
     output_dir: str = None
 ):
     """
@@ -101,7 +101,7 @@ def generate_image_to_image(
     intelligent_ratio: bool = False,
     negative_prompt: str = None,
     sample_strength: float = None,
-    api_url: str = "http://100.80.150.48:7918",
+    api_url: str = "http://localhost:5100",
     output_dir: str = None
 ):
     """
@@ -351,9 +351,9 @@ def main():
         subparser.add_argument(
             "--model",
             type=str,
-            default="jimeng-4.0",
-            choices=["jimeng-4.0", "jimeng-3.1", "jimeng-3.0", "jimeng-2.1", "jimeng-xl-pro", "nanobanana"],
-            help="Model to use (default: jimeng-4.0)"
+            default="jimeng-4.5",
+            choices=["jimeng-4.5", "jimeng-4.1", "jimeng-4.0", "jimeng-3.1", "jimeng-3.0", "jimeng-2.1", "jimeng-xl-pro", "nanobanana"],
+            help="Model to use (default: jimeng-4.5; jimeng-4.1is domestic only and supports intelligent ratio)"
         )
         subparser.add_argument(
             "--ratio",
@@ -387,8 +387,8 @@ def main():
         subparser.add_argument(
             "--api-url",
             type=str,
-            default="http://100.80.150.48:7918",
-            help="Jimeng API base URL (default: http://100.80.150.48:7918)"
+            default="http://localhost:5100",
+            help="Jimeng API base URL (default: http://localhost:5100)"
         )
         subparser.add_argument(
             "--output-dir",

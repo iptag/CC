@@ -1,22 +1,17 @@
 ---
-name: jimeng-image-generator
+name: jimeng-api
 description: Generate images using the Jimeng API based on text prompts. Use this skill when users request AI-generated images from the Jimeng (即梦AI) service, artwork, illustrations, or visual content creation. Supports text-to-image and image-to-image generation with customizable ratios and resolutions.
 version: 1.0.0
 dependencies: python>=3.7, requests>=2.28.0, Pillow>=9.0.0
 ---
 
-# Jimeng Image Generator
+# Jimeng API
 
 ## Overview
 
 This skill enables image generation using a locally deployed Jimeng API service (Docker). It converts text prompts into high-quality images and automatically downloads them to the project's `/pic` folder. The skill supports text-to-image generation, image-to-image composition, customizable aspect ratios (1:1, 16:9, etc.), and multiple resolution levels (1k, 2k, 4k).
 
-**API Endpoint**: `http://100.80.150.48:7918`
-
-⚠️⚠️ 【强制禁令 | CRITICAL POLICY】
-**生成图片后立刻停止。绝对不要读取、打开、预览或分析生成的图片；不要调用任何读取工具(例如：`Read`、`view_image` 等)。仅返回保存的文件路径即可。**
-
-HARD STOP: AFTER GENERATION, DO NOT READ/OPEN/ANALYZE IMAGES OR CALL ANY READ TOOL. RETURN FILE PATHS ONLY.
+**API Endpoint**: `http://localhost:5100`
 
 ## When to Use This Skill
 
@@ -41,6 +36,11 @@ Use this skill when users request:
    - 香港站: Add `hk-` prefix (e.g., `hk-your_session_id`)
    - 日本站: Add `jp-` prefix (e.g., `jp-your_session_id`)
    - 新加坡站: Add `sg-` prefix (e.g., `sg-your_session_id`)
+
+**⚠️ nanobanana Model Resolution Rules**:
+   - **US site (us-)**: Fixed at 1024×1024 with 2k resolution; ignores user-provided `ratio` and `resolution` parameters
+   - **HK/JP/SG sites (hk-/jp-/sg-)**: Forced 1k resolution, but supports custom `ratio` parameters (e.g., 16:9, 4:3)
+   - **Domestic site (CN)**: Does not support nanobanana model; use jimeng series instead
 
 **Always ask the user for their Session ID before proceeding**, as the skill does not include a pre-configured credential.
 
@@ -107,15 +107,15 @@ python scripts/generate_image.py text \
 - `prompt` (required): Text description of the desired image
 - `--session-id`: Jimeng session ID (required)
 - `--model`: Model to use (default: `jimeng-4.0`)
-  - Options: `jimeng-4.0`, `jimeng-3.1`, `jimeng-3.0`, `jimeng-2.1`, `jimeng-xl-pro`, `nanobanana` (international only)
+  - Options: `jimeng-4.5`, `jimeng-4.1`, `jimeng-4.0`, `jimeng-3.1`, `jimeng-3.0`, `jimeng-2.1`, `jimeng-xl-pro`, `nanobanana` (international only)
 - `--ratio`: Aspect ratio (default: `1:1`)
   - Options: `1:1`, `4:3`, `3:4`, `16:9`, `9:16`, `3:2`, `2:3`, `21:9`
 - `--resolution`: Resolution level (default: `2k`)
   - Options: `1k`, `2k`, `4k`
-- `--intelligent-ratio`: Enable smart ratio detection based on prompt keywords
+- `--intelligent-ratio`: Enable smart ratio detection based on prompt keywords **⚠️ Only works for jimeng-4.0/jimeng-4.1/jimeng-4.5 models; other models will ignore this parameter**
 - `--negative-prompt`: Negative prompt (elements to avoid)
 - `--sample-strength`: Sampling strength (0.0-1.0)
-- `--api-url`: Custom API URL (default: `http://100.80.150.48:7918`)
+- `--api-url`: Custom API URL (default: `http://localhost:5100`)
 - `--output-dir`: Custom output directory (defaults to `project_root/pic`)
 
 ### Image-to-Image Composition
@@ -155,6 +155,8 @@ python scripts/generate_image.py image \
 
 ### Intelligent Ratio Detection
 
+**⚠️ IMPORTANT**: This feature only works with the `jimeng-4.0`, `jimeng-4.1`, and `jimeng-4.5` models. Other models (jimeng-3.0, nanobanana, etc.) will ignore the `--intelligent-ratio` flag.
+
 Use `--intelligent-ratio` to automatically select the best aspect ratio based on prompt keywords.
 
 **Example:**
@@ -162,6 +164,7 @@ Use `--intelligent-ratio` to automatically select the best aspect ratio based on
 python scripts/generate_image.py text \
     "奔跑的狮子,竖屏" \
     --session-id "YOUR_SESSION_ID" \
+    --model "jimeng-4.0" \
     --intelligent-ratio
 ```
 
@@ -169,8 +172,14 @@ python scripts/generate_image.py text \
 
 | Resolution | Ratio | Dimensions |
 |------------|-------|------------|
-| **1k** | 1:1 | 1328×1328 |
-|  | 16:9 | 1664×936 |
+| **1k** | 1:1 | 1024×1024 |
+|  | 4:3 | 768×1024 |
+|  | 3:4 | 1024×768 |
+|  | 16:9 | 1024×576 |
+|  | 9:16 | 576×1024 |
+|  | 3:2 | 1024×682 |
+|  | 2:3 | 682×1024 |
+|  | 21:9 | 1195×512 |
 | **2k** (default) | 1:1 | 2048×2048 |
 |  | 16:9 | 2560×1440 |
 |  | 4:3 | 2304×1728 |
@@ -212,7 +221,7 @@ pip install requests Pillow
 ```
 User requests image generation
     ↓
-Is Jimeng API running at 100.80.150.48:7918?
+Is Jimeng API running at localhost:5100?
     ├─ No → Instruct user to start Docker service
     └─ Yes → Continue
     ↓
@@ -239,8 +248,6 @@ Script executes:
     HARD STOP — DO NOT READ/OPEN/ANALYZE IMAGES; DO NOT CALL `Read`/`view_image`; TASK COMPLETE
 ```
 
-⚠️ 提醒：以上流程的最后一步为“硬性停止”。生成图片并保存路径后，不允许继续调用任何读取或分析图片的工具。
-
 ## Troubleshooting
 
 ### Common Issues
@@ -262,6 +269,16 @@ Script executes:
 **"Model not supported"**
 - `nanobanana` only works with international sites (us-/hk-/jp-/sg- prefix)
 - `jimeng-3.1` and `jimeng-2.1` only work with domestic sites
+
+**"nanobanana resolution mismatch"**
+- **US site (us- prefix)**: nanobanana model only supports 1024×1024 @ 2k resolution; all `ratio` and `resolution` parameters are ignored
+- **HK/JP/SG sites (hk-/jp-/sg- prefix)**: nanobanana model forces 1k resolution, but allows custom ratios (e.g., 16:9, 4:3)
+- If you need full control over resolution and ratio, use `jimeng-4.0` model instead
+
+**"intelligent_ratio not working"**
+- The `--intelligent-ratio` flag only works with `jimeng-4.0`, `jimeng-4.1`, and `jimeng-4.5` models
+- Other models (jimeng-3.0, nanobanana, etc.) will ignore this parameter
+- Solution: Use `jimeng-4.0`, `jimeng-4.1`, or `jimeng-4.5` if you need intelligent ratio detection
 
 ## Best Practices
 

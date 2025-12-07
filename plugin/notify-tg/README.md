@@ -1,25 +1,27 @@
-# Claude Code Telegram 通知插件
+# Claude Code Telegram Notification Plugin
 
-基于 Node.js 的上下文感知通知插件，通过 Telegram Bot API 发送消息。适合在远程工作或离开电脑时监控 Claude Code 任务状态。
+A context-aware notification plugin for Claude Code that sends messages via Telegram Bot API. Perfect for monitoring Claude Code task status when working remotely or away from your computer.
 
-## 特性
+[中文文档](README_CN.md)
 
-- 远程监控 - 任务完成或需要确认时推送到手机
-- 零依赖 - 仅使用 Node.js 内置模块
-- 安全配置 - 支持环境变量配置 Token
-- 上下文感知 - 自动提取项目名和任务状态
+## Features
 
-## 安装
+- Remote Monitoring - Push notifications to your phone when tasks complete or need confirmation
+- Zero Dependencies - Uses only Node.js built-in modules
+- Secure Configuration - Supports environment variables for Token configuration
+- Context Aware - Automatically extracts project name and task status
 
-### 方法 1：本地 Marketplace 安装（推荐）
+## Installation
 
-1. 创建本地 marketplace 目录结构：
+### Method 1: Local Marketplace Installation (Recommended)
+
+1. Create a local marketplace directory structure:
 
 ```bash
-# 在任意位置创建 marketplace
+# Create marketplace anywhere
 mkdir -p ~/claude-marketplace/.claude-plugin
 
-# 创建 marketplace 清单
+# Create marketplace manifest
 cat > ~/claude-marketplace/.claude-plugin/marketplace.json << 'EOF'
 {
   "name": "local-marketplace",
@@ -35,30 +37,30 @@ cat > ~/claude-marketplace/.claude-plugin/marketplace.json << 'EOF'
 EOF
 ```
 
-2. 将 notify-tg 目录复制到 marketplace：
+2. Copy notify-tg directory to the marketplace:
 
 ```bash
 cp -r /path/to/notify-tg ~/claude-marketplace/
 ```
 
-3. 在 Claude Code 中添加 marketplace 并安装：
+3. Add marketplace and install in Claude Code:
 
 ```bash
-# 启动 Claude Code
+# Launch Claude Code
 claude
 
-# 添加本地 marketplace
+# Add local marketplace
 /plugin marketplace add ~/claude-marketplace
 
-# 安装插件
+# Install plugin
 /plugin install notify-tg@local-marketplace
 ```
 
-4. 重启 Claude Code 使插件生效。
+4. Restart Claude Code for the plugin to take effect.
 
-### 方法 2：直接复制到用户配置
+### Method 2: Direct Configuration
 
-将 hooks 配置合并到 `~/.claude/settings.json`：
+Merge hooks configuration into `~/.claude/settings.json`:
 
 ```json
 {
@@ -89,24 +91,24 @@ claude
 }
 ```
 
-> 注意：将 `/path/to/notify-tg` 替换为实际路径。
+> Note: Replace `/path/to/notify-tg` with the actual path.
 
-## 配置（必须）
+## Configuration (Required)
 
-需要提供 Telegram Bot Token 和 Chat ID。
+You need to provide a Telegram Bot Token and Chat ID.
 
-### 方法 1：环境变量（推荐）
+### Method 1: Environment Variables (Recommended)
 
-在 shell 配置文件（`.bashrc`、`.zshrc`）中添加：
+Add to your shell configuration file (`.bashrc`, `.zshrc`):
 
 ```bash
 export TELEGRAM_TOKEN="123456789:ABCdefGHIjklMNOpqrsTUVwxyz"
 export TELEGRAM_CHAT_ID="987654321"
 ```
 
-### 方法 2：配置文件
+### Method 2: Configuration File
 
-编辑 `config/notify-config.json`：
+Edit `config/notify-config.json`:
 
 ```json
 {
@@ -117,42 +119,43 @@ export TELEGRAM_CHAT_ID="987654321"
 }
 ```
 
-## 监听事件
+## Monitored Events
 
-插件自动监听以下事件：
+The plugin automatically listens for the following events:
 
-| 事件 | 触发时机 | 通知示例 |
-|------|---------|---------|
-| Stop | Claude 完成任务 | ✅ Claude 响应完成 - [项目名] |
-| Notification | 需要授权或确认 | ⚠️ Claude 需要注意 - [项目名] - [消息] |
+| Event | Trigger | Notification Example |
+|-------|---------|---------------------|
+| Stop | Claude completes a task | ✅ Claude Response Complete - [Project] |
+| Notification | Authorization or confirmation needed | ⚠️ Claude Needs Attention - [Project] - [Message] |
 
-## 测试
+## Testing
 
-手动运行脚本测试配置：
+Manually run the script to test your configuration:
 
 ```bash
-# 测试 Stop 事件
+# Test Stop event
 echo '{"hook_event_name":"Stop","cwd":"/path/to/project"}' | node scripts/notify-hook.js
 
-# 测试 Notification 事件
-echo '{"hook_event_name":"Notification","cwd":"/path/to/project","notification_type":"PermissionRequest","message":"需要权限"}' | node scripts/notify-hook.js
+# Test Notification event
+echo '{"hook_event_name":"Notification","cwd":"/path/to/project","notification_type":"PermissionRequest","message":"Permission required"}' | node scripts/notify-hook.js
 ```
 
-## 文件结构
+## File Structure
 
 ```
 notify-tg/
 ├── .claude-plugin/
-│   └── plugin.json          # 插件元数据
+│   └── plugin.json          # Plugin metadata
 ├── hooks/
-│   └── hooks.json           # Hook 配置
+│   └── hooks.json           # Hook configuration
 ├── scripts/
-│   └── notify-hook.js       # 核心脚本
+│   └── notify-hook.js       # Core script
 ├── config/
-│   └── notify-config.json   # 配置文件
-└── README.md
+│   └── notify-config.json   # Configuration file
+├── README.md                # English documentation
+└── README_CN.md             # Chinese documentation
 ```
 
-## 许可证
+## License
 
 Apache License 2.0

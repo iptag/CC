@@ -35,7 +35,7 @@ from datetime import datetime, timedelta
 # Configuration
 # ============================================================================
 
-API_KEY = "923e4385-2add-4594-989e-fe771fb640e8"  # Replace with your actual API key
+API_KEY = ""  # Replace with your actual API key
 BASE_URL = "https://api.exa.ai"
 DEFAULT_NUM_RESULTS = 10
 DEFAULT_SEARCH_TYPE = "deep"

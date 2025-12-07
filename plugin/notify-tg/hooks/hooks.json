@@ -1,0 +1,27 @@
+{
+  "description": "Telegram notifications for Claude Code events via Bot API",
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node ${CLAUDE_PLUGIN_ROOT}/scripts/notify-hook.js",
+            "timeout": 20
+          }
+        ]
+      }
+    ],
+    "Notification": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node ${CLAUDE_PLUGIN_ROOT}/scripts/notify-hook.js",
+            "timeout": 20
+          }
+        ]
+      }
+    ]
+  }
+}

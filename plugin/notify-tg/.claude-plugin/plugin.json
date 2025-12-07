@@ -1,0 +1,8 @@
+{
+  "name": "notify-tg",
+  "description": "Telegram notification plugin",
+  "version": "1.0.0",
+  "author": {
+    "name": "iptag"
+  }
+}

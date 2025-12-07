@@ -1,0 +1,22 @@
+{
+  "version": "1.1.0",
+  "description": "Claude Code Telegram 通知插件配置文件",
+  "telegram": {
+    "token": "",
+    "chatId": ""
+  },
+  "events": {
+    "Stop": {
+      "enabled": true,
+      "title": "Claude 响应完成",
+      "messageTemplate": "✅ *{{title}}*\n\n项目: `{{projectName}}`\n状态: 已完成",
+      "fallbackMessage": "✅ *{{title}}*\n\n项目: `{{projectName}}`\n状态: 已完成"
+    },
+    "Notification": {
+      "enabled": true,
+      "title": "Claude 需要注意",
+      "messageTemplate": "⚠️ *{{title}}*\n\n项目: `{{projectName}}`\n消息: {{message}}",
+      "fallbackMessage": "⚠️ *{{title}}*\n\n项目: `{{projectName}}`\n需要您的确认"
+    }
+  }
+}

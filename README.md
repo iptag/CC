@@ -6,25 +6,14 @@ Claude Code 扩展集合，包含自定义 Skills 和 Plugins。
 
 ```
 myclaude/
-├── CLAUDE.md                  # 全局配置参考（实际配置位于 ~/.claude/CLAUDE.md）
+├── CLAUDE.md                  # 全局配置参考
+├── tg-proxy-auto-del.js       # Telegram 反代 Worker 脚本
 ├── skills/                    # Agent Skills
-│   ├── codex/                 # Codex CLI 集成
-│   │   ├── SKILL.md
-│   │   └── scripts/codex.py
-│   ├── searching-with-exa/    # Exa 智能搜索
-│   │   ├── SKILL.md
-│   │   ├── REFERENCE.md
-│   │   ├── examples.py
-│   │   └── scripts/exa_fetch.py
-│   └── jimeng-api/            # 即梦 AI 图像生成
-│       ├── Skill.md
-│       └── scripts/generate_image.py
+│   ├── codex/
+│   ├── searching-with-exa/
+│   └── jimeng-api/
 └── plugin/                    # Plugins
-    └── notify-tg/             # Telegram 通知插件
-        ├── .claude-plugin/plugin.json
-        ├── hooks/hooks.json
-        ├── scripts/notify-hook.js
-        └── config/notify-config.json
+    └── notify-tg/
 ```
 
 ## Skills
@@ -83,6 +72,48 @@ uv run ~/.claude/skills/searching-with-exa/scripts/exa_fetch.py smart "React hoo
 任务完成或需要确认时，通过 Telegram 推送通知。
 
 **安装**：详见 [plugin/notify-tg/README.md](plugin/notify-tg/README.md)
+
+### Telegram 反代与消息自动删除 (`tg-proxy-auto-del.js`)
+
+部署在 Cloudflare Workers 上，提供 Telegram API 反向代理，并支持定时自动删除包含特定关键词（如 "Claude"）的消息，防止通知刷屏。
+
+**功能**：
+- 提供 Telegram Bot API 反向代理 (解决网络限制)
+- 支持鉴权 (`X-TG-Proxy-Key`)
+- 自动检测并删除包含特定关键词的消息 (默认延迟 15 分钟)
+
+**手动部署步骤 (Cloudflare Dashboard)**：
+
+1. **创建 Worker**：
+   - 登录 Cloudflare Dashboard，进入 Workers & Pages。
+   - 点击 "Create Application" -> "Create Worker"。
+   - 命名为 `tg-proxy` (或你喜欢的名字)，点击 Deploy。
+   - 点击 "Edit code"，将 `tg-proxy-auto-del.js` 的内容完整复制并覆盖默认代码，点击 "Save and deploy"。
+
+2. **配置 KV (键值存储)**：
+   - 在 Workers & Pages 主页，点击 "KV" -> "Create a namespace"。
+   - 命名为 `TG_MSG_KV`，点击 Add。
+   - 回到你的 Worker 设置页面 (`tg-proxy` -> Settings)。
+   - 在 **KV Namespace Bindings** 下，点击 "Add binding"。
+   - Variable name 填 `TG_MSG_KV`，Namespace 选择刚才创建的 `TG_MSG_KV`。
+   - 点击 "Save and deploy"。
+
+3. **配置环境变量**：
+   - 在 Worker 设置页面 (`tg-proxy` -> Settings -> Variables)。
+   - 在 **Environment Variables** 下，点击 "Add variable"。
+   - 添加以下变量：
+     - `AUTO_DELETE_KEYWORDS`: 设置为 `Claude` (或用逗号分隔的多个关键词)。
+     - `PROXY_KEY`: 设置你的访问密钥 (建议需要鉴权)。
+   - 点击 "Save and deploy"。
+
+4. **配置定时任务 (Cron Triggers)**：
+   - 在 Worker 设置页面 (`tg-proxy` -> Settings -> Triggers)。
+   - 在 **Cron Triggers** 下，点击 "Add Cron Trigger"。
+   - 设置 Cron 表达式为 `每分钟执行一次` ，用于检查并删除过期消息。
+   - 点击 "Add Trigger"。
+
+5. **使用**：
+   将 `notify-tg` 插件的配置 `baseApi` 指向你的 Worker 地址，例如：`https://tg-proxy.你的子域名.workers.dev/bot`
 
 ## 配置
 

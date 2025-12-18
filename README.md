@@ -18,6 +18,36 @@ myclaude/
 
 ## Skills
 
+### Augment Prompt Enhancer (MCP 增强)
+
+基于 Augment 0.10.1 (commit eb3f80f3) 修改，将 `prompt-enhancer` 暴露为 MCP tool，与 ACE（上下文检索引擎）配合使用。
+
+**功能**：
+- 智能优化用户 prompt
+- 集成 Augment ACE 上下文检索
+- 支持 Claude Code 命令行集成
+
+**安装**：
+替换项目根目录的 `augment.mjs`（注意备份原文件），重启 `auggie-mcp` 服务。
+
+**Claude Code 集成**：
+
+创建 `~/.claude/commands/enhance.md`，内容如下：
+
+```markdown
+---
+description: 使用augment prompt enhancer
+---
+
+先使用 prompt-enhancer mcp 优化 $ARGUMENTS， 然后向用户展示优化后的prompt，待用户确认后再执行
+```
+
+**使用**：
+```bash
+# 在 prompt 前加 /enhance 前缀
+/enhance 帮我重构这个函数
+```
+
 ### Codex CLI (`skills/codex`)
 
 将复杂代码任务委托给 Codex AI，支持文件引用（`@` 语法）和结构化输出。
